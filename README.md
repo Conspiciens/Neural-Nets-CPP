@@ -2,6 +2,7 @@
 The goal of this project is for the automation project at Cal Poly Pomona that creates masks for the sidewalk currently. The scope of the project will eventually increase and more issues will be created, but for now just a mask for sidewalks/roads. 
 
 # Issues 
+- [ ] https://github.com/Conspiciens/auto-car/issues/1
 
 # Goals 
  - [ ] Develop a system for the Camera to detect sidewalks/roads
