@@ -38,7 +38,7 @@ class SidewalkDataset():
 
         image_ids = index 
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-        iscrowd = torch.zeros((num_objs,), dtype=torch.int64)
+        issidwalk = torch.zeros((num_objs,), dtype=torch.int64)
         
         img = tv_tensors.Image(img)
 
@@ -50,7 +50,7 @@ class SidewalkDataset():
         )
         target["image_id"] = image_ids
         target["area"] = area
-        target["iscrowd"] = iscrowd
+        target["issidewalk"] = issidwalk 
 
         if self.transforms is not None: 
             img, target = self.transforms(img, target)
