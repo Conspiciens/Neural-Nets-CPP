@@ -20,6 +20,7 @@ from PIL import Image
 import matplotlib.pyplot as plt 
 from pathlib import Path
 
+# Current Paper being used by pytorch: https://arxiv.org/pdf/1703.06870
 # https://debuggercafe.com/road-pothole-detection-with-pytorch-faster-rcnn-resnet50/
 # https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
 # Implement road mask detection with a Mask R-CNN pretrained 
@@ -28,24 +29,31 @@ dataset_directory = "CalPolyRoadDataset/"
 
 # setup model 
 def get_model_instance_segmentation(num_classes): 
-   model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights="DEFAULT") 
+    # What is a multi-head model?
+    # https://stackoverflow.com/questions/56004483/what-is-a-multi-headed-model-and-what-exactly-is-a-head-in-a-model
 
-   in_features = model.roi_heads.box_predictor.cls_score.in_features
+    # Load the mask RCNN Model with the default weights
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights="DEFAULT") 
 
-   print(in_features)
+    # Number of "input features" 
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
 
-   model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+    # Replace the pretrained head being the box predictor in this case 
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 
-   in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
-   hidden_layer = 256
+    # Get the "input features"
+    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+    hidden_layer = 256
 
-   model.roi_heads.mask_predictor = MaskRCNNPredictor(
-        in_features_mask, 
-        hidden_layer, 
-        num_classes
-   )
+    # Replace the mask predictor in the MaskRCNNPredictor
+    model.roi_heads.mask_predictor = MaskRCNNPredictor(
+         in_features_mask, 
+         hidden_layer, 
+         num_classes
+    )
 
-   return model
+    # This is our new model
+    return model
 
 
 def get_transform(train): 
@@ -79,7 +87,7 @@ def training_rcnn():
 
     print(len(dataset))
     indices = torch.randperm(len(dataset)).tolist()
-    dataset = torch.utils.data.Subset(dataset, indices[:-40])
+    dataset = torch.utils.data.Subset(dataset, indices[:-70])
     dataset_test = torch.utils.data.Subset(dataset_test, indices[-10:])
 
     data_loader = torch.utils.data.DataLoader(
@@ -117,7 +125,7 @@ def training_rcnn():
     )
 
     # let's train it just for 2 epochs
-    num_epochs = 10
+    num_epochs = 100
 
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
