@@ -64,7 +64,7 @@ class DecoderBlock(nn.Module):
         return x
 
 class UNet(nn.Module):
-    def __init__(self, nclass=1, in_chans=1, depth=5, layers=2, sampling_factor=2, skip_connection=True, padding="same"):
+    def __init__(self, nclass = 1, in_chans = 3, depth=5, layers=2, sampling_factor=2, skip_connection=True, padding="same"):
         super().__init__()
         self.encoder = nn.ModuleList()
         self.decoder = nn.ModuleList()
@@ -72,12 +72,13 @@ class UNet(nn.Module):
         out_chans = 64
         for _ in range(depth):
             self.encoder.append(EncoderBlock(in_chans, out_chans, layers, sampling_factor, padding))
-            in_chans, out_chans = out_chans, out_chans*2
+            in_chans, out_chans = out_chans, out_chans * 2
 
         out_chans = in_chans // 2
         for _ in range(depth-1):
             self.decoder.append(DecoderBlock(in_chans, out_chans, layers, skip_connection, sampling_factor, padding))
-            in_chans, out_chans = out_chans, out_chans//2
+            in_chans, out_chans = out_chans, out_chans // 2
+
         # Add a 1x1 convolution to produce final classes
         self.logits = nn.Conv2d(in_chans, nclass, 1, 1)
 
@@ -98,9 +99,11 @@ class UNet(nn.Module):
 
 
 def train_u_net(): 
+    ''' 
+        Training U-Net Neural Network based on the CalPolyRoadDataset
+    ''' 
     transform = transforms.Compose([
         transforms.ToPILImage(), 
-        transforms.Grayscale(),
         transforms.Resize((224, 224)),
         transforms.ToTensor() 
     ])
@@ -128,30 +131,45 @@ def train_u_net():
 
     H = {"train_loss": [], "test_loss": []}
 
+    # Create U-Net network 
     unet = UNet().to('cpu')
+
+    # Use the BCE for loss Function
     lossFunc = BCEWithLogitsLoss() 
+
+    # Using Adam optimizers 
     opt = Adam(unet.parameters(), lr=0.001)
 
     train_steps = len(train_dataset)
     test_steps = len(val_dataset) 
+
+    print(train_steps)
 
     for i in range(train_steps):
         unet.train()
 
         totalTrainLoss = 0 
         totalTestLoss = 0 
+        print(i)
 
         for (i, (x, y)) in enumerate(data_loader): 
 
+            # Pass the image to the U-Net
             pred = unet(x)
+            # Find the loss of the result and the prediction  
             loss = lossFunc(pred, y)
 
+            # Clears the gradients from the previous step
             opt.zero_grad() 
+            # Backpropograte through the network 
             loss.backward() 
+            # Optimizer takes a "step"
+            # Step is decided based on the learning rate 
             opt.step() 
 
             totalTrainLoss += loss
         
+        # Don't apply gradients 
         with torch.no_grad(): 
             unet.eval()
             for (x, y) in data_loader_test:
@@ -197,14 +215,14 @@ def make_prediction(model, imgPath):
 
         print(image.size())
 
+        # Apply transforms to Image
         transform = transforms.Compose([
             transforms.ToPILImage(), 
-            transforms.Grayscale(),
             transforms.Resize((224, 224)),
             transforms.ToTensor() 
         ])
 
-        image = transform(image.squeeze()).unsqueeze(1)
+        # image = transform(image.squeeze()).unsqueeze(1)
 
 		# make the prediction, pass the results through the sigmoid
 		# function, and convert the result to a NumPy array
@@ -214,7 +232,7 @@ def make_prediction(model, imgPath):
         predMask = predMask.cpu().numpy()
 		# filter out the weak predictions and convert them to integers
         print(predMask)
-        predMask = (predMask > 0.50) * 255
+        predMask = (predMask > 0.10) * 255
         predMask = predMask.astype(np.uint8)
 		# prepare a plot for visualization
         prepare_plot(orig, predMask)
@@ -222,7 +240,7 @@ def make_prediction(model, imgPath):
 
 def prepare_plot(origImage, predMask):
     # initialize our figure
-    ogMask = cv2.imread("../CalPolyRoadDataset/sidewalkMask/6.png", 0)
+    ogMask = cv2.imread("../CalPolyRoadDataset/sidewalkMask/10.png", 0)
     ogMask = cv2.resize(ogMask, ((224, 224)))
 
     figure, ax = plt.subplots(nrows=1, ncols=3, figsize=(10, 10))
@@ -239,5 +257,11 @@ def prepare_plot(origImage, predMask):
     figure.show()
     plt.show()
 
+def test_unet(): 
+    unet = UNet()
+
+    unet.load_state_dict(torch.load("cifar10model.pth"))
+    make_prediction(unet, "../CalPolyRoadDataset/sidewalk/10.png")
+
 if __name__ == '__main__': 
-    train_u_net()
+    test_unet()
