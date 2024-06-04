@@ -15,3 +15,5 @@ Switching from pre-trained Mask RCNN to U-Net Neural Network, as the Mask RCNN i
  - [ ] Determine whether FCN bringings better performance compared to U-Net
  - [ ] Eventually develop a RCNN from scratch for LIDAR/Camera
  - [ ] Finetune the current RCNN using pytorch RCNN and truly understand the mathematics behind the current training
+ - [ ] Using LSTM to determine whether an individual is heading toward the vehicle or not 
+ 
