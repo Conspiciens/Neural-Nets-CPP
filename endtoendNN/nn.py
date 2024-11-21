@@ -1,5 +1,13 @@
-import torch 
+import torch
 import torchvision 
+
+import numpy as np
+import matplotlib.pyplot as plt
+import torchvision.transforms as T
+import torch.nn.functional as F
+import torch as nn
+
+from PIL import Image
 
 # End to End Self Driving Cars 
 # https://developer.nvidia.com/blog/deep-learning-self-driving-cars/
@@ -8,6 +16,33 @@ import torchvision
 # Car Behavior Cloning
 # https://github.com/naokishibuya/car-behavioral-cloning
 
+class End_to_End_NN:
+    def __init__(self):
+        self.conv1 = torch.nn.Conv2d(3, 24, kernel_size=(5, 5), stride=(2, 2))
+        self.conv2 = torch.nn.Conv2d(24, 36, kernel_size=(5, 5), stride=(2,2)) 
+        self.conv3 = torch.nn.Conv2d(36, 48, kernel_size=(5,5), stride=(2,2))
+        self.conv4 = torch.nn.Conv2d(48, 64, kernel_size=(3,3))   
+        self.conv5 = torch.nn.Conv2d(64, 64, kernel_size=(3,3))
 
+        self.li1 = torch.nn.Linear(1152, 100) 
+       	self.li2 = torch.nn.Linear(100, 50) 
+       	self.li3 = torch.nn.Linear(50, 10) 
+       	self.li4 = torch.nn.Linear(10, 1)  
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x)) 
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x)) 
+
+        x = x.view(x.size(1), -1)
+
+        x = self.li1(x)
+        x = self.li2(x)
+        x = self.li3(x)
+        x = self.li4(x)
+
+        return x 
 
     

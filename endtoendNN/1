@@ -1,0 +1,27 @@
+import torch 
+import torchvision 
+
+import preprocessing 
+import nn 
+
+# 
+def train(): 
+    preprocess = preprocessing.data_processing()
+
+	preprocess[0] 
+
+
+	# Load the Model
+	model = nn.End_to_End_Network() 
+    
+    model(preprocess[0]);   
+
+	
+    
+
+
+def main(): 
+    train()
+
+if __name__ == '__main__': 
+    main()
