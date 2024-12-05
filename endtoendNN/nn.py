@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms as T
 import torch.nn.functional as F
-import torch as nn
+import torch.nn as nn
 
 from PIL import Image
 
@@ -16,8 +16,9 @@ from PIL import Image
 # Car Behavior Cloning
 # https://github.com/naokishibuya/car-behavioral-cloning
 
-class End_to_End_NN:
+class End_to_End_NN(nn.Module):
     def __init__(self):
+        super(End_to_End_NN, self).__init__()
         self.conv1 = torch.nn.Conv2d(3, 24, kernel_size=(5, 5), stride=(2, 2))
         self.conv2 = torch.nn.Conv2d(24, 36, kernel_size=(5, 5), stride=(2,2)) 
         self.conv3 = torch.nn.Conv2d(36, 48, kernel_size=(5,5), stride=(2,2))

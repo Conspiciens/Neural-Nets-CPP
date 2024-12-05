@@ -4,9 +4,9 @@ from PIL import Image
 
 class data_processing: 
     def __init__(self): 
-        self.image_path = "/Volumes/Heavy_Duty/logging/image_data/" 
-        self.logging_path = "/Volumes/Heavy_Duty/logging/logging_data/"
-        self.merge_log_file = "/Volumes/Heavy_Duty/logging/"
+        self.image_path = "/Volumes/joeham/logging_camera_down/image_data/" 
+        self.logging_path = "/Volumes/joeham/logging_camera_down/logging_data/"
+        self.merge_log_file = "/Volumes/joeham/logging_camera_down/"
         self.merge_log_files() 
 
     def merge_log_files(self) -> None: 
@@ -25,10 +25,13 @@ class data_processing:
             print("Merge file exists already, returning") 
             return
 
+        file_names = [] 
+
         # Check whether path exists and file isn't a hidden file
         for files in os.listdir(self.logging_path): 
             file = os.path.join(self.logging_path, files) 
             if os.path.exists(file) and not files.startswith("."): 
+                file_names.append(file)
                 file_count += 1
 
         # Create merged log file
@@ -38,13 +41,11 @@ class data_processing:
         i = 0
         # Iterate through the log files 
         while i < file_count: 
-            log_file_name = os.path.join(self.logging_path, "log_file_" + str(i) + ".txt") 
+            log_file_name = os.path.join(self.logging_path, file_names[i]) 
             log_file = open(log_file_name) 
         
             # Write data from the log file to merged file
             for idx, line in enumerate(log_file): 
-                if idx == 0: 
-                    continue 
                 merged_log_file.write(line) 
                  
             log_file.close() 
@@ -68,7 +69,7 @@ class data_processing:
         
         line_req = None
         log_file = open(self.merge_log_file + "merged_log_file.txt"); 
-        for line_idx, line in enumerate(log_file): 
+        for (line_idx, line) in enumerate(log_file): 
             if line_idx - 1 == idx: 
                 line_req = line            
                 break 
@@ -83,9 +84,9 @@ class data_processing:
         left_img_name = line_arr[2].split("/")[-1] 
         right_img_name = line_arr[3].split("/")[-1] 
         
-        front_img_name = self.image_path + front_img_name 
-        left_img_name = self.image_path + left_img_name
-        right_img_name = self.image_path + right_img_name
+        front_img_name = self.image_path + front_img_name + ".jpg"  
+        left_img_name = self.image_path + left_img_name + ".jpg" 
+        right_img_name = self.image_path + right_img_name + ".jpg"
 
         # Get all Images and steering value 
         front_image = Image.open(front_img_name)
